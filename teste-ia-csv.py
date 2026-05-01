@@ -10,7 +10,7 @@ import os
 import streamlit as st
 from langchain_core.documents import Document
 from langchain_core.prompts import PromptTemplate
-from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 # Injeta a chave como variável de ambiente
@@ -83,7 +83,7 @@ def gerar_dataset_id(csv_bytes):
 def criar_vectorstore(_chunks, dataset_id):
     embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
 
-    vectorstore = Chroma.from_documents(
+    vectorstore = FAISS.from_documents(
         documents=_chunks,
         embedding=embeddings,
     )
