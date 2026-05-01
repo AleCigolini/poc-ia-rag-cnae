@@ -13,10 +13,12 @@ from langchain_core.prompts import PromptTemplate
 from langchain_community.vectorstores import Chroma
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
+# Injeta a chave como variável de ambiente
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+
 # =================================
 # 2. GENERAL SETTINGS
 # =================================
-BASE_PERSIST_DIRECTORY = "./chroma_cnae_csv"
 EMBEDDING_MODEL = "text-embedding-3-small"
 LLM_MODEL = "gpt-4o-mini"
 CSV_FILE_PATH = "./cnae_exemplo.csv"
@@ -80,19 +82,11 @@ def gerar_dataset_id(csv_bytes):
 @st.cache_resource
 def criar_vectorstore(_chunks, dataset_id):
     embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
-    persist_directory = os.path.join(BASE_PERSIST_DIRECTORY, dataset_id)
 
-    if os.path.exists(persist_directory):
-        vectorstore = Chroma(
-            persist_directory=persist_directory,
-            embedding_function=embeddings,
-        )
-    else:
-        vectorstore = Chroma.from_documents(
-            documents=_chunks,
-            embedding=embeddings,
-            persist_directory=persist_directory,
-        )
+    vectorstore = Chroma.from_documents(
+        documents=_chunks,
+        embedding=embeddings,
+    )
 
     return vectorstore
 

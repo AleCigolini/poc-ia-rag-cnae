@@ -4,6 +4,9 @@
 import os
 import streamlit as st
 
+# Injeta a chave como variável de ambiente
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+
 # Loaders e chunking
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -17,9 +20,6 @@ from langchain_core.prompts import PromptTemplate
 # =================================
 # 2. CONFIGURAÇÕES GERAIS
 # =================================
-
-# Diretório do banco vetorial
-PERSIST_DIRECTORY = "./chroma_rh"
 
 # Modelo de embeddings
 EMBEDDING_MODEL = "text-embedding-3-small"
@@ -76,21 +76,13 @@ def enriquecer_chunks(chunks):
     return chunks
 
 @st.cache_resource
-def criar_vectorstore(_chunks):
+def criar_vectorstore(_chunks, dataset_id):
     embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
 
-    # Se o banco já existir, carrega — sem adicionar documentos novamente
-    if os.path.exists(PERSIST_DIRECTORY):
-        vectorstore = Chroma(
-            persist_directory=PERSIST_DIRECTORY,
-            embedding_function=embeddings
-        )
-    else:
-        vectorstore = Chroma.from_documents(
-            documents=_chunks,
-            embedding=embeddings,
-            persist_directory=PERSIST_DIRECTORY
-        )
+    vectorstore = Chroma.from_documents(
+        documents=_chunks,
+        embedding=embeddings,
+    )
 
     return vectorstore
 
