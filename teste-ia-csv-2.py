@@ -162,9 +162,17 @@ def responder_pergunta(pergunta, vectorstore):
     linhas_relevantes = [documento_para_json(doc) for doc in contexto_final]
     contexto_json = json.dumps(linhas_relevantes, ensure_ascii=False, indent=2)
 
-    prompt_final = f"""Voce e um assistente especializado em consulta de CNAE e tributacao (IBS/CBS).
-Responda com base EXCLUSIVAMENTE nos itens JSON fornecidos abaixo.
-Se a informacao nao estiver nos itens, retorne um array vazio: []
+    prompt_final = f"""Voce e um assistente especializado em classificacao tributaria de servicos com base no CNAE do cliente e na descricao da sua atividade economica.
+
+A pergunta do usuario sempre indicara:
+1. O CNAE do cliente (codigo numerico da atividade economica).
+2. Uma descricao textual da atuacao ou servico prestado pelo cliente.
+
+Sua tarefa e cruzar essas duas informacoes (CNAE + descricao da atividade) com os itens disponiveis abaixo e retornar SOMENTE os registros que correspondam tanto ao CNAE informado quanto ao tipo de servico descrito.
+
+Priorize a correspondencia pelo campo "CNAE" da tabela. Em seguida, avalie se a "DESCRIÇÃO NBS" e o "Descrição Item" sao coerentes com a atividade descrita pelo cliente. Retorne apenas os itens que satisfacam ambos os criterios.
+
+Se nenhum item for compativel, retorne um array vazio: []
 
 Retorne SOMENTE JSON valido, sem markdown e sem texto adicional.
 
@@ -174,12 +182,13 @@ Regras obrigatorias:
 - Cada objeto deve conter EXATAMENTE estas chaves:
   "Item LC 116", "Descrição Item", "CÓDIGO NACIONAL", "CNAE", "NBS", "DESCRIÇÃO NBS", "cClassTrib", "nome cClassTrib", "ONDA DE CADASTRO"
 - Nao invente valores e nao altere os valores dos itens fornecidos.
-- Retorne apenas os itens que realmente respondem a pergunta.
+- Retorne apenas os itens que realmente correspondam ao CNAE e a descricao da atividade informados.
 
 Itens disponiveis:
 {contexto_json}
 
-Pergunta: {pergunta}
+Pergunta do usuario (contem o CNAE do cliente e a descricao da sua atividade):
+{pergunta}
 """
 
     resposta = llm.invoke(prompt_final).content.strip()
@@ -206,7 +215,7 @@ if not csv_disponivel:
     st.error(f"Arquivo CSV nao encontrado em: {CSV_FILE_PATH}")
 
 st.caption(f"CSV utilizado automaticamente: {CSV_FILE_PATH}")
-pergunta = st.text_input("Digite sua pergunta sobre CNAE:")
+pergunta = st.text_input("Informe o CNAE e a descricao da atividade do cliente:")
 
 if csv_disponivel and pergunta and api_key:
     with st.spinner("Processando CSV e consultando dados..."):
