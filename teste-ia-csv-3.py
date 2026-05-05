@@ -8,8 +8,7 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 
 # Injeta a chave como variável de ambiente
-# os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
 # =================================
 # 2. GENERAL SETTINGS
