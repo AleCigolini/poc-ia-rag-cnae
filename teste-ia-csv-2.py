@@ -20,7 +20,7 @@ os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 # 2. GENERAL SETTINGS
 # =================================
 EMBEDDING_MODEL = "text-embedding-3-small"
-LLM_MODEL = "gpt-4o-mini"
+LLM_MODEL = "gpt-5.4-mini"
 CSV_FILE_PATH = "./cnae-exemplo-2.csv"
 
 
